@@ -9,9 +9,18 @@ import Foundation
 
 struct Review: Identifiable, Hashable {
     var id = UUID()
-    var imageName: String
-    var name: String
-    var shopName: String
-    var rateImage: String
-    var rate: String
+    var image: String?
+    var name: String?
+    var shopName: String?
+    var rateImage: String?
+    var rate: String?
+    var distance: String?
+    
+    static var mock = Review(
+        image: "testImage",
+        name: "Otabek Tuychiev",
+        shopName: "Barberist",
+        rateImage: "star_icon",
+        rate: "4.5",
+    )
 }

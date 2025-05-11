@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct BarberistApp: App {
+    @StateObject private var tabBarVM = TabBarViewModel()
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(tabBarVM)
         }
     }
 }

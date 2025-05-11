@@ -11,18 +11,10 @@ import Combine
 final class TabBarViewModel: ObservableObject {
     @Published var isTabBarHidden: Bool = false
 }
-
 //MARK: - UI
 struct TabBarView: View {
-    @StateObject private var viewModel = TabBarViewModel()
-    
+    @EnvironmentObject private var viewModel: TabBarViewModel
     @State private var selection: Tabs = .home
-        
-    @State private var homePath = NavigationPath()
-    @State private var searchPath = NavigationPath()
-    @State private var paymentsPath = NavigationPath()
-    @State private var favoritesPath = NavigationPath()
-    @State private var profilePath = NavigationPath()
     
     var body: some View {
             TabView(selection: $selection) {
@@ -42,7 +34,6 @@ struct TabBarView: View {
                     CustomTabBarView()
             }
     }
-    
     // MARK: - Subviews methods.
     @ViewBuilder
     private func CustomTabBarView() -> some View {
@@ -68,22 +59,17 @@ struct TabBarView: View {
                 .fill(selection == tab ? Color.accentColor : .clear)
                 .frame(width: 46, height: selection == tab ? 2 : 0.0)
                 .transition(.scale)
-
             Image(tab.image)
             .padding(.vertical, 10)
             .foregroundStyle(selection == tab ? .accentColor : Color.secondary)
             .frame(maxWidth: .infinity)
-            
         }.onTapGesture {
             withAnimation(.bouncy(duration: 0.4)) {
                 selection = tab
             }
         }
-        
     }}
-
 // MARK: - Helpers.
-
 enum Tabs: String, CaseIterable {
     case home, search, payments, favorites, profile
     var image: ImageResource {
@@ -104,4 +90,5 @@ enum Tabs: String, CaseIterable {
 
 #Preview {
     TabBarView()
+        .environmentObject(TabBarViewModel())
 }

@@ -8,10 +8,35 @@
 import SwiftUI
 
 struct OrdinaryShopsView: View {
+    @ObservedObject var viewModel = HomeViewModel()
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack(alignment: .leading) {
+            Text("Ordinary")
+                .groupedSectionTitleStyle()
+            if viewModel.isLoading {
+                ScrollView(.horizontal) {
+                    HStack(spacing: 8) {
+                        ForEach(0..<5, id: \.self) { _ in
+                            ShopCardView(barbershop: .mock)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .redacted(reason: .placeholder)
+            } else {
+                ScrollView(.horizontal) {
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.barbershops) { barbershop in
+                            ShopCardView(barbershop: barbershop)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+        }
     }
 }
+
 
 #Preview {
     OrdinaryShopsView()

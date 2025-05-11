@@ -10,14 +10,38 @@ import Combine
 
 final class SettingsViewModel: ObservableObject {
     @Published var path = NavigationPath()
+    @Published var isLanguageSheetPresented = false
+    @Published var selectedLanguage: AppLanguage = .uz
+    @Published var tempSelectedLanguage: AppLanguage = .uz
+    @Published var showConfirmChange = false
 
     init() {
         loadData()
     }
     
-    func loadData() {  }
+    func loadData() {
+        if let saved = UserDefaults.standard.string(forKey: "app_language"),
+           let lang = AppLanguage(rawValue: saved) {
+            selectedLanguage = lang
+            tempSelectedLanguage = lang
+        }
+    }
     
     func signOut() {  }
+    
+    func openLanguageSheet() {
+        tempSelectedLanguage = selectedLanguage
+            isLanguageSheetPresented = true
+        }
+    func closeLanguageSheet() {
+        selectedLanguage = tempSelectedLanguage
+        isLanguageSheetPresented = false
+    }
+    func saveLanguageChange() {
+        selectedLanguage = tempSelectedLanguage
+        UserDefaults.standard.set(selectedLanguage.rawValue, forKey: "app_language")
+        isLanguageSheetPresented = false
+    }
 }
 
 //MARK: - UI
@@ -28,21 +52,24 @@ struct SettingsView: View {
         NavigationStack(path: $viewModel.path) {
             List {
                 UserProfileHeader()
-                MainProfileSection()
-                AdditionalProfileSection()
+                MainSection()
+                AdditionalSection(viewModel: viewModel)
                 SignOutSection()
             }
             .listSectionSpacing(8)
             .toolbar(.hidden, for: .tabBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationShadow()
-            .toolbar { toolBarContent() }
+            .toolbar { ToolBarContent() }
+            .sheet(isPresented: $viewModel.isLanguageSheetPresented) {
+                LanguageSelectionView(viewModel: viewModel).presentationDetents([.height(350)])
+            }
         }
     }
 
     // MARK: - Subviews methods.
     @ToolbarContentBuilder
-    private func toolBarContent() -> some ToolbarContent {
+    private func ToolBarContent() -> some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Text("Settings")
                 .font(.system(size: 24, weight: .semibold))
@@ -52,7 +79,7 @@ struct SettingsView: View {
 
 // MARK: - User Profile Header
 
-struct UserProfileHeader: View {
+private struct UserProfileHeader: View {
     var body: some View {
         NavigationLink(destination: ProfileDetailsView()) {
             HStack(spacing: 8) {
@@ -75,7 +102,7 @@ struct UserProfileHeader: View {
 
 // MARK: - Main Profile Section
 
-struct MainProfileSection: View {
+private struct MainSection: View {
     var body: some View {
         ProfileCustomSection(title: "Main") {
             Toggle(isOn: .constant(false)) {
@@ -93,11 +120,12 @@ struct MainProfileSection: View {
 
 // MARK: - Additional Profile Section
 
-struct AdditionalProfileSection: View {
+private struct AdditionalSection: View {
+    @ObservedObject var viewModel: SettingsViewModel
     var body: some View {
         ProfileCustomSection(title: "Additional") {
-            NavigationButton(title: "Language", icon: .asset(.globeIcon), hasLanguageLabel: true) {
-                // Language action
+            NavigationButton(title: "Language", icon: .asset(.globeIcon), hasLanguageLabel: true, languageLabel: viewModel.selectedLanguage.title) {
+                viewModel.openLanguageSheet()
             }
             NavigationButton(title: "Share", icon: .asset(.circularShareIcon)) {
                 // Share action
@@ -117,7 +145,7 @@ struct AdditionalProfileSection: View {
 
 //MARK: - Sign out Section
 
-struct SignOutSection: View {
+private struct SignOutSection: View {
     var body: some View {
         ProfileCustomSection {
             NavigationButton(title: "Sign out", icon: .asset(.signOutIcon), role: .destructive) {
@@ -129,7 +157,7 @@ struct SignOutSection: View {
 
 // MARK: - Custom Components
 
-struct ProfileCustomSection<Content: View>: View {
+private struct ProfileCustomSection<Content: View>: View {
     var title: LocalizedStringKey?
     @ViewBuilder var content: Content
 
@@ -147,18 +175,19 @@ struct ProfileCustomSection<Content: View>: View {
     }
 }
 
-struct NavigationButton: View {
+private struct NavigationButton: View {
     var title: LocalizedStringKey
     var icon: ProfileIcon?
     var chevronIcon: String?
     var role: ButtonRole? = nil
     var hasLanguageLabel: Bool = false
+    var languageLabel: LocalizedStringKey? = nil
     var action: () -> Void
 
     var body: some View {
         Button(role: role, action: action) {
             if hasLanguageLabel {
-                ProfileCellView(title: title, icon: icon, chevronIcon: "chevron.right", languageLabel: "English")
+                ProfileCellView(title: title, icon: icon, chevronIcon: "chevron.right", languageLabel: languageLabel)
                     .foregroundStyle(role == .destructive ? .red : .primary)
             } else {
                 ProfileCellView(title: title, icon: icon, chevronIcon: "chevron.right")
@@ -168,11 +197,11 @@ struct NavigationButton: View {
     }
 }
 
-struct ProfileCellView: View {
+private struct ProfileCellView: View {
     var title: LocalizedStringKey
     var icon: ProfileIcon?
     var chevronIcon: String?
-    var languageLabel: String?
+    var languageLabel: LocalizedStringKey?
 
     var body: some View {
         HStack {
@@ -195,7 +224,7 @@ struct ProfileCellView: View {
     }
 }
 
-struct ProfileIconView: View {
+private struct ProfileIconView: View {
     var icon: ProfileIcon
 
     var body: some View {
@@ -225,4 +254,5 @@ enum ButtonType {
 
 #Preview {
     SettingsView()
+        .environmentObject(TabBarViewModel())
 }

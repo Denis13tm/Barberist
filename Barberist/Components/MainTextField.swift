@@ -15,12 +15,12 @@ struct MainTextField: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.subheadline)
-                .fontWeight(.semibold)
+                .font(.subheadline.weight(.semibold))
                 .foregroundColor(.primary)
-            
             TextField(placeholder, text: $text)
                 .padding()
+                .frame(height: 48)
+                .frame(maxWidth: .infinity)
                 .background(Color.contentBackground)
                 .cornerRadius(10)
         }
@@ -29,4 +29,6 @@ struct MainTextField: View {
 #Preview {
     @Previewable @State var value: String = "ALI"
     MainTextField(title: "Name", placeholder: "name", text: $value)
+        .padding()
+        .background(Color.myBackground)
 }

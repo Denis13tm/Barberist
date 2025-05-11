@@ -12,7 +12,6 @@ final class PaymentViewModel: ObservableObject {
     @Published var welcomeMessage: String = "Welcome to PaymentTabView!"
 
     init() {
-        // Bu yerda kelajakda API chaqirish yoki state tayyorlash bo'ladi
         loadData()
     }
     

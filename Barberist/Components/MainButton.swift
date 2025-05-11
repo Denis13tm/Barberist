@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainButton: View {
-    var title: String
+    var title: LocalizedStringKey
     var isDisabled: Bool
     var action: () -> Void
 

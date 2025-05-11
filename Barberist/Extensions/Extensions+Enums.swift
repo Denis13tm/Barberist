@@ -49,14 +49,14 @@ struct NavigationShadowModifier: ViewModifier {
     }
 }
 
-//extension CGFloat {
-//    static var screenHeight: CGFloat {
-//        UIScreen.main.bounds.height
-//    }
-//    static var screenWidth: CGFloat {
-//        UIScreen.main.bounds.width
-//    }
-//}
+extension CGFloat {
+    static var screenHeight: CGFloat {
+        UIScreen.main.bounds.height
+    }
+    static var screenWidth: CGFloat {
+        UIScreen.main.bounds.width
+    }
+}
 
 extension View {
     func groupedSectionTitleStyle() -> some View {
@@ -64,5 +64,45 @@ extension View {
             .font(.system(size: 18, weight: .semibold))
             .foregroundStyle(Color.primary)
             .padding(.horizontal)
+    }
+}
+
+enum CurrentState {
+    case loading
+    case none
+    case error(Error)
+}
+
+enum Device {
+    static let screenWidth = UIScreen.main.bounds.width
+    static let screenHeight = UIScreen.main.bounds.height
+}
+
+extension String {
+    func formattedPhoneNumber(maxDigits: Int = 9) -> String {
+        let digits = self.filter { $0.isWholeNumber }
+        let limited = String(digits.prefix(maxDigits))
+        var formatted = ""
+        var index = limited.startIndex
+        if limited.count > 0 {
+            let end = limited.index(index, offsetBy: min(2, limited.count))
+            formatted += String(limited[index..<end])
+            index = end
+        }
+        if index < limited.endIndex {
+            let end = limited.index(index, offsetBy: min(3, limited.distance(from: index, to: limited.endIndex)))
+            formatted += " " + limited[index..<end]
+            index = end
+        }
+        if index < limited.endIndex {
+            let end = limited.index(index, offsetBy: min(2, limited.distance(from: index, to: limited.endIndex)))
+            formatted += " " + limited[index..<end]
+            index = end
+        }
+        if index < limited.endIndex {
+            let end = limited.index(index, offsetBy: min(2, limited.distance(from: index, to: limited.endIndex)))
+            formatted += " " + limited[index..<end]
+        }
+        return formatted
     }
 }

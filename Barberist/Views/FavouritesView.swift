@@ -12,7 +12,6 @@ final class FavouritesViewModel: ObservableObject {
     @Published var welcomeMessage: String = "Welcome to FavouritesTabView!"
 
     init() {
-        // Bu yerda kelajakda API chaqirish yoki state tayyorlash bo'ladi
         loadData()
     }
     func loadData() {  }
